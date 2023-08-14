@@ -1,13 +1,17 @@
 import './App.css';
-import Header from './Components/Header';
-import Post from './Components/Post';
+import Home from './Components/Home';
+import Layout from './Components/Layout';
+import LoginPage from './Components/LoginPage';
+import { Route, Routes } from 'react-router-dom'
 
 function App() {
   return (
-    <main>
-      <Header />
-      <Post />
-    </main>
+    <Routes>
+      <Route path='/' element={<Layout />}>
+        <Route index element={<Home />} />
+        <Route path='/login' element={<LoginPage />} />
+      </Route>
+    </Routes>
   );
 }
 export default App;
