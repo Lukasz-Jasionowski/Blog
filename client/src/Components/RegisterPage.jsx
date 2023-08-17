@@ -7,11 +7,17 @@ function RegisterPage() {
     const serverURL = process.env.REACT_APP_SERVER_URL;
     async function register(e) {
         e.preventDefault();
-        await fetch(`${serverURL}/register`, {
+        const response = await fetch(`${serverURL}/register`, {
             method: 'POST',
             body: JSON.stringify({ username, password }),
-            headers: { 'Content-Type': 'application/json' }
-        })
+            headers: { 'Content-Type': 'application/json' },
+        });
+        console.log(response);
+        if (response.status === 200) {
+            alert('Registration successful!');
+        } else {
+            alert('Registration failed!');
+        }
     }
     return (
         <form className='register' onSubmit={register}>
