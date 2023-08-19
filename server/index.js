@@ -27,6 +27,17 @@ app.post('/register', async (req, res) => {
     }
 });
 
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+    const userDoc = await User.findOne({ username: username });
+    const passOk = bcrypt.compareSync(password, userDoc.password);
+    if (passOk) {
+        // logged in
+    } else {
+        re.status(400).json('Wrong credentials!');
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server is running on Port ${PORT}`);
-})
+});
