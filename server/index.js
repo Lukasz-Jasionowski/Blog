@@ -50,9 +50,8 @@ app.get('/profile', (req, res) => {
     jwt.verify(token, secret, {}, (error, info) => {
         if (error) throw error;
         res.json(info);
-    })
-    res.json(req.cookies);
-})
+    });
+});
 app.listen(PORT, () => {
     console.log(`Server is running on Port ${PORT}`);
 });
