@@ -8,10 +8,12 @@ const bcrypt = require('bcryptjs');
 const salt = bcrypt.genSaltSync(10);
 const secret = process.env.SECRET;
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 const PORT = process.env.PORT || 4000;
 
 app.use(cors({ credentials: true, origin: process.env.CLIENT_URL }));
 app.use(express.json());
+app.use(cookieParser());
 
 mongoose.connect(process.env.MONGODB_URL);
 
@@ -43,6 +45,14 @@ app.post('/login', async (req, res) => {
     }
 });
 
+app.get('/profile', (req, res) => {
+    const { token } = req.cookies;
+    jwt.verify(token, secret, {}, (error, info) => {
+        if (error) throw error;
+        res.json(info);
+    })
+    res.json(req.cookies);
+})
 app.listen(PORT, () => {
     console.log(`Server is running on Port ${PORT}`);
 });
