@@ -9,6 +9,9 @@ const salt = bcrypt.genSaltSync(10);
 const secret = process.env.SECRET;
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
+const multer = require('multer');
+const uploadMiddleware = multer({ dest: 'uploads/' });
+const fs = require('fs');
 const PORT = process.env.PORT || 4000;
 
 app.use(cors({ credentials: true, origin: process.env.CLIENT_URL }));
@@ -58,6 +61,15 @@ app.get('/profile', (req, res) => {
 
 app.post('/logout', (req, res) => {
     res.cookie('token', '').json('Ok');
+});
+
+app.post('/post', uploadMiddleware.single('file'), (req, res) => {
+    const { originalname, path } = req.file;
+    const parts = originalname.split('.');
+    const ext = parts[parts.length - 1];
+    const newPath = `${path}.${ext}`;
+    fs.renameSync(path, newPath);
+    res.json({ files: req.file });
 });
 
 app.listen(PORT, () => {
