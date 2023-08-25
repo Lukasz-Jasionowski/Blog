@@ -37,6 +37,7 @@ function CreatePost() {
         const response = await fetch(`${Server_URL}/post`, {
             method: 'POST',
             body: data,
+            credentials: 'include'
         });
         if (response.ok) {
             setRedirect(true);
