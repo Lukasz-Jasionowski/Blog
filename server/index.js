@@ -18,6 +18,7 @@ const PORT = process.env.PORT || 4000;
 app.use(cors({ credentials: true, origin: process.env.CLIENT_URL }));
 app.use(express.json());
 app.use(cookieParser());
+app.use('/uploads', express.static(`${__dirname}/uploads`));
 
 mongoose.connect(process.env.MONGODB_URL);
 
