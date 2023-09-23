@@ -1,9 +1,22 @@
 import dotenv from "dotenv";
 import express from 'express';
 import cors from 'cors';
+const userSchema = new mongoose.Schema({
+    username: { type: String, required: true, min: 4, unique: true },
+    password: { type: String, required: true },
+});
+export const User = mongoose.model('User', userSchema);
 import mongoose from 'mongoose';
-import { User } from './models/User.js';
-import { Post } from './models/Post.js';
+const PostSchema = new mongoose.Schema({
+    title: String,
+    summary: String,
+    content: String,
+    cover: String,
+    author: { type: mongoose.Schema.Types.ObjectId, ref: 'Users' },
+}, {
+    timestamps: true,
+});
+export const Post = mongoose.model('Post', PostSchema);
 import bcrypt from 'bcryptjs';
 const salt = bcrypt.genSaltSync(10);
 import jwt from 'jsonwebtoken';
