@@ -1,24 +1,26 @@
-require("dotenv").config();
-const express = require('express');
-const app = express();
-const cors = require('cors');
-const mongoose = require('mongoose');
-const User = require('./models/User');
-const Post = require('./models/Post');
-const bcrypt = require('bcryptjs');
+import dotenv from "dotenv";
+import express from 'express';
+import cors from 'cors';
+import mongoose from 'mongoose';
+import User from './models/User.js';
+import Post from './models/Post.js';
+import bcrypt from 'bcryptjs';
 const salt = bcrypt.genSaltSync(10);
-const secret = process.env.SECRET;
-const jwt = require('jsonwebtoken');
-const cookieParser = require('cookie-parser');
-const multer = require('multer');
+import jwt from 'jsonwebtoken';
+import cookieParser from 'cookie-parser';
+import multer from 'multer';
 const uploadMiddleware = multer({ dest: 'uploads/' });
-const fs = require('fs');
+import fs from 'fs/promises';
+const { rename } = fs;
 const PORT = process.env.PORT || 4000;
+
+dotenv.config();
+const app = express();
 
 app.use(cors({ credentials: true, origin: process.env.CLIENT_URL }));
 app.use(express.json());
 app.use(cookieParser());
-app.use('/uploads', express.static(`${__dirname}/uploads`));
+app.use('/uploads', express.static(`${process.cwd()}/uploads`));
 
 mongoose.connect(process.env.MONGODB_URL);
 
@@ -41,7 +43,7 @@ app.post('/login', async (req, res) => {
     const userDoc = await User.findOne({ username: username });
     const passOk = bcrypt.compareSync(password, userDoc.password);
     if (passOk) {
-        jwt.sign({ username, id: userDoc._id }, secret, {}, (error, token) => {
+        jwt.sign({ username, id: userDoc._id }, process.env.SECRET, {}, (error, token) => {
             if (error) throw error;
             res.cookie('token', token).json({
                 id: userDoc._id,
@@ -55,7 +57,7 @@ app.post('/login', async (req, res) => {
 
 app.get('/profile', (req, res) => {
     const { token } = req.cookies;
-    jwt.verify(token, secret, {}, (error, info) => {
+    jwt.verify(token, process.env.SECRET, {}, (error, info) => {
         if (error) throw error;
         res.json(info);
     });
@@ -70,10 +72,10 @@ app.post('/post', uploadMiddleware.single('file'), async (req, res) => {
     const parts = originalname.split('.');
     const ext = parts[parts.length - 1];
     const newPath = `${path}.${ext}`;
-    fs.renameSync(path, newPath);
+    await rename(path, newPath);
 
     const { token } = req.cookies;
-    jwt.verify(token, secret, {}, async (error, info) => {
+    jwt.verify(token, process.env.SECRET, {}, async (error, info) => {
         if (error) throw error;
         const { title, summary, content } = req.body;
         const postDoc = await Post.create({
@@ -95,10 +97,10 @@ app.put('/post', uploadMiddleware.single('file'), async (req, res) => {
         const parts = originalname.split('.');
         const ext = parts[parts.length - 1];
         newPath = `${path}.${ext}`;
-        fs.renameSync(path, newPath);
+        await rename(path, newPath);
     }
     const { token } = req.cookies;
-    jwt.verify(token, secret, {}, async (error, info) => {
+    jwt.verify(token, process.env.SECRET, {}, async (error, info) => {
         if (error) throw error;
         const { id, title, summary, content } = req.body;
         const postDoc = await Post.findById(id);
