@@ -1,12 +1,13 @@
 import dotenv from "dotenv";
 import express from 'express';
 import cors from 'cors';
-const userSchema = new mongoose.Schema({
+import mongoose, { model } from 'mongoose';
+const UserSchema = new mongoose.Schema({
     username: { type: String, required: true, min: 4, unique: true },
     password: { type: String, required: true },
 });
-export const User = mongoose.model('User', userSchema);
-import mongoose from 'mongoose';
+const UserModel = model('Users', UserSchema);
+export const User = UserModel;
 const PostSchema = new mongoose.Schema({
     title: String,
     summary: String,
