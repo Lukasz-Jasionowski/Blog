@@ -71,6 +71,9 @@ app.post('/login', async (req, res) => {
 
 app.get('/profile', (req, res) => {
     const { token } = req.cookies;
+    if (!token) {
+        return res.status(401).json({ message: 'Authorization token missing' });
+    }
     jwt.verify(token, process.env.SECRET, {}, (error, info) => {
         if (error) throw error;
         res.json(info);
